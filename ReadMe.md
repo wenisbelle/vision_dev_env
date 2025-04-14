@@ -19,7 +19,7 @@ This is the Vision Development Environment for the Laboratory at the CTEx. We pl
 
 First, clone this repository:
 
-    git clone https://github.com/CTEx-Lab/vision_dev_env.git
+    git clone https://github.com/wenisbelle/vision_dev_env.git
 
 Then, build the docker image:
 
