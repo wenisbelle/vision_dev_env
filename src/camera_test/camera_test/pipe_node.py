@@ -22,8 +22,8 @@ class VisionNode(Node):
     
         time.sleep(10)
 
-        self.name = "printed_ammunition"
-        self.output_dir = "/Vision_dev/src/camera_test/images" + self.name + "/"
+        self.name = "noise_bedroom"
+        self.output_dir = "/Vision_dev/src/camera_test/images/" + self.name + "/"
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
        
@@ -41,7 +41,7 @@ class VisionNode(Node):
         img = cv2.resize(img, (1280, 720))
 
         self.count += 1
-        if self.count <= 10:
+        if self.count <= 100:
             cv2.imwrite(self.output_dir + self.name + str(self.count) + ".png", img)
             cv2.putText(img, "Got " + str(self.count) + " images", (20,20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,0), 2)
         else:
