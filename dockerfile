@@ -42,7 +42,7 @@ RUN pip3 install "pybind11>=2.12"
 RUN python3 -c "import torch; print(torch.cuda.is_available())" && \
     python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
 
-RUN apt-get install -y ros-humble-librealsense2* \
+RUN apt-get update && apt-get install -y ros-humble-librealsense2* \
                         ros-humble-realsense2-*
 
 RUN source /opt/ros/humble/setup.bash

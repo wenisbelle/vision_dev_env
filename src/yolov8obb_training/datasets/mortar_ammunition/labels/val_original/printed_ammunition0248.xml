@@ -1,0 +1,28 @@
+<annotation>
+	<folder>test</folder>
+	<filename>printed_ammunition0248.png</filename>
+	<path>/Vision_dev/src/Annottation/test/printed_ammunition0248.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1280</width>
+		<height>720</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>ammunition</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<robndbox>
+			<cx>610.4408</cx>
+			<cy>571.2446</cy>
+			<w>76.6659</w>
+			<h>288.2944</h>
+			<angle>1.827444</angle>
+		</robndbox>
+		<extra/>
+	</object>
+</annotation>
