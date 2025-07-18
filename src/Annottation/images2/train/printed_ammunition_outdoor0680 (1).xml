@@ -1,0 +1,28 @@
+<annotation verified="yes">
+	<folder>train</folder>
+	<filename>printed_ammunition_outdoor0680 (1).png</filename>
+	<path>/Vision_dev/src/Annottation/images2/train/printed_ammunition_outdoor0680 (1).png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1280</width>
+		<height>720</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>ammunition</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<robndbox>
+			<cx>491.4073</cx>
+			<cy>373.9922</cy>
+			<w>62.3783</w>
+			<h>290.8263</h>
+			<angle>5.207641</angle>
+		</robndbox>
+		<extra/>
+	</object>
+</annotation>

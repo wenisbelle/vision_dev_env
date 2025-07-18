@@ -1,4 +1,4 @@
-path: mortar_ammunition # dataset root dir
+path: /Vision_dev/src/yolov8obb_training/datasets/mortar_ammunition # dataset root dir
 train: images/train # train images (relative to 'path')
 val: images/val     # val images (relative to 'path')
 test:               # test images (optional)

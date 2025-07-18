@@ -18,13 +18,13 @@ class Camera_subscriber(Node):
     def __init__(self):
         super().__init__('camera_subscriber')
 
-        self.model = YOLO(os.environ['HOME'] + '/yolov8_obb_ros2/src/yolov8_obb/scripts/best.pt')
+        self.model = YOLO('/Vision_dev/src/yolo_ros/yolov8_obb/scripts/best.pt')
 
         self.yolov8_inference = Yolov8Inference()
 
         self.subscription = self.create_subscription(
             Image,
-            '/image_raw',
+            '/camera/camera/color/image_raw',
             self.camera_callback,
             10)
         self.yolov8_pub = self.create_publisher(Yolov8Inference, "/Yolov8_Inference", 1)
@@ -33,7 +33,7 @@ class Camera_subscriber(Node):
     def camera_callback(self, data):
 
         img = bridge.imgmsg_to_cv2(data, "bgr8")
-        results = self.model(img, conf = 0.90)
+        results = self.model(img, conf = 0.50, verbose=False)
 
         self.yolov8_inference.header.frame_id = "inference"
         self.yolov8_inference.header.stamp = camera_subscriber.get_clock().now().to_msg()
@@ -43,11 +43,17 @@ class Camera_subscriber(Node):
                 boxes = r.obb
                 for box in boxes:
                     self.inference_result = InferenceResult()
-                    b = box.xyxyxyxy[0].to('gpu').detach().numpy().copy() 
+                    b = box.xyxyxyxy[0].to('cpu').detach().numpy().copy() 
                     c = box.cls
                     self.inference_result.class_name = self.model.names[int(c)]
                     a = b.reshape(1,8)
                     self.inference_result.coordinates = copy.copy(a[0].tolist())
+
+                    center_x = (a[0][0] + a[0][2] + a[0][4] + a[0][6]) / 4
+                    center_y = (a[0][1] + a[0][3] + a[0][5] + a[0][7]) / 4
+                    center_pixels = [int(round(center_x)), int(round(center_y))]
+
+                    self.inference_result.center = center_pixels
                     self.yolov8_inference.yolov8_inference.append(self.inference_result)
             else:
                 camera_subscriber.get_logger().info(f"no_results")

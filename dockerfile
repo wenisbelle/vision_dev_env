@@ -45,6 +45,8 @@ RUN python3 -c "import torch; print(torch.cuda.is_available())" && \
 RUN apt-get update && apt-get install -y ros-humble-librealsense2* \
                         ros-humble-realsense2-*
 
+RUN pip3 install ultralytics
+
 RUN source /opt/ros/humble/setup.bash
 
 RUN mkdir -p /Vision_dev/src

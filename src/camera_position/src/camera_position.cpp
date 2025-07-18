@@ -6,7 +6,7 @@
 #include <chrono>
 #include <sensor_msgs/msg/laser_scan.hpp>
 #include "sensor_msgs/msg/image.hpp"
-#include "yolov8_obb_msgs/msg/yolov8_inference.hpp"
+#include "yolov8_msgs/msg/yolov8_inference.hpp"
 
 #include <chrono>
 #include <cstdlib>
@@ -26,7 +26,7 @@ public:
       : Node("image_position", node_options){
 
     // Initialize the MutuallyExclusive callback group object
-    callback_publisher_postion_group_ = this->create_callback_group(
+    callback_publisher_position_group_ = this->create_callback_group(
         rclcpp::CallbackGroupType::MutuallyExclusive);
 
     callback_subscriber_point_cloud_group_ = this->create_callback_group(
@@ -46,23 +46,23 @@ public:
 
     timer_ = this->create_wall_timer(
         50ms, std::bind(&ImagePosition::timer_callback, this),
-        callback_publisher_postion_group_); 
+        callback_publisher_position_group_); 
 
     point_cloud_subscription_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
-        "", 10, //// colocar o tópico correto
+        "/camera/camera/depth/color/points", 10, 
         std::bind(&ImagePosition::point_cloud_callback, this, std::placeholders::_1),
         options_point_cloud);
 
-    inference_subscription_ = this->create_subscription<yolov8_obb_msgs::msg::Yolov8Inference>(
-        "", 10, //// colocar o tópico correto
+    inference_subscription_ = this->create_subscription<yolov8_msgs::msg::Yolov8Inference>(
+        "/Yolov8_Inference", 10,
         std::bind(&ImagePosition::inference_callback, this, std::placeholders::_1),
         options_inference);
-
   }
 
 
 private:
   void timer_callback() {
+    get_real_position;
     auto message = geometry_msgs::msg::Pose();
     message.position.x = pos_x;
     message.position.y = pos_y;
@@ -70,37 +70,46 @@ private:
     publisher_->publish(message);
   }
 
-  void point_cloud_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg) {
-    std::this_thread::sleep_for(100ms);
-    float pos_x = msg->ranges[360]; // Verificar os valores corretos
-    float pos_y = msg->ranges[180]; // 180
+  void point_cloud_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
+    std::this_thread::sleep_for(50ms);
+    z_position = msg.data[index_position]
   }
 
-  void inference_callback(const yolov8_obb_msgs::msg::Yolov8Inference::SharedPtr msg) {
-    std::this_thread::sleep_for(100ms);
-    std::array<float, 6> bb_coordinates = msg->yolov8_inference.coordinates;
+  void inference_callback(const yolov8_msgs::msg::Yolov8Inference::SharedPtr msg) {
+    std::this_thread::sleep_for(50ms);
+    u = msg->yolov8_inference[0].center[0];
+    v = msg->yolov8_inference[0].center[1];
+    index_position = (v * WIDTH) + u;
   }
 
-  float get_depth(std::array<float, 6>& coordinates, float& x, float& y)
-  {
-
-
-    
+  get_real_position()
+   {
+    x_position = (u - cx)*z_position/fx;
+    y_position = (v - cy)*z_position/fy;
   }
 
-  
+  int index_position = 0;
+  int WIDTH = 640;
+  int HEIGHT = 480;
+  int fx = 607.4315;
+  int fy = 607.5863;
+  int cy = 234.2057;
+  int cx = 324.3362;
 
   rclcpp::TimerBase::SharedPtr timer_;
-  rclcpp::TimerBase::SharedPtr timer_action_;
-  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
-  rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr subscription_;
-  rclcpp_action::Client<OdomRecord>::SharedPtr client_ptr_;
-  bool goal_done_;
-  float vx;
-  float vz;
-  rclcpp::CallbackGroup::SharedPtr callback_action_moverobot_group_;
-  rclcpp::CallbackGroup::SharedPtr callback_subscriber_moverobot_group_;
-  rclcpp::CallbackGroup::SharedPtr callback_publisher_moverobot_group_;
+  rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr publisher_;
+  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr point_cloud_subscription_;
+  rclcpp::Subscription<yolov8_msgs::msg::Yolov8Inference>::SharedPtr inference_subscription_;
+
+
+  float z_position;
+  float x_posititon;
+  float y_postion;
+  int u;
+  int v;
+  rclcpp::CallbackGroup::SharedPtr callback_publisher_position_group_;
+  rclcpp::CallbackGroup::SharedPtr callback_subscriber_point_cloud_group_;
+  rclcpp::CallbackGroup::SharedPtr callback_subscriber_inference_camera_group_;
 };
 
 /************************************
@@ -110,17 +119,12 @@ private:
 int main(int argc, char *argv[]) {
   rclcpp::init(argc, argv);
 
-  auto service_client = std::make_shared<ServiceClient>();
-  while (!service_client->is_service_done()) {
-    rclcpp::spin_some(service_client);
-  }
-
-  std::shared_ptr<MoveRobot> move_robot_service_action_node =
-      std::make_shared<MoveRobot>();
+  std::shared_ptr<MoveRobot> get_image_pose_node =
+      std::make_shared<ImagePosition>();
 
   // Initialize one MultiThreadedExecutor object
   rclcpp::executors::MultiThreadedExecutor executor;
-  executor.add_node(move_robot_service_action_node);
+  executor.add_node(get_image_pose_node);
   executor.spin();
 
   rclcpp::shutdown();

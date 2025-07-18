@@ -36,3 +36,9 @@ We need also to run the following command to give the container access to the di
 To interact with the container, just run:
 
     docker exec -it vision_dev_container /bin/bash
+
+# Camera usage
+
+To run the right command for obb:
+
+     ros2 launch realsense2_camera rs_launch.py enable_rgbd:=true enable_sync:=true align_depth.enable:=true enable_color:=true enable_depth:=true pointcloud.enable:=true depth_module.depth_profile:=640x480x30 depth_module.infra_profile:=640x480x30 rgb_camera.color_profile:=640x480x30

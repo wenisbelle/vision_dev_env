@@ -10,7 +10,8 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(yolov8_obb_msgs REQUIRED)
+find_package(yolov8_msgs REQUIRED)
+find_package(message_filters REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -25,13 +26,15 @@ if(BUILD_TESTING)
 endif()
 
 
-add_executable(move_robot_node src/move_robot.cpp)
-ament_target_dependencies(move_robot_node rclcpp geometry_msgs sensor_msgs)
+add_executable(get_distance src/get_distance.cpp)
+ament_target_dependencies(get_distance rclcpp geometry_msgs sensor_msgs)
 
-
+add_executable(get_position src/node_with_message_filter.cpp)
+ament_target_dependencies(get_position rclcpp geometry_msgs yolov8_msgs sensor_msgs message_filters)
 
 install(TARGETS
-   move_robot_node
+   get_distance
+   get_position
    DESTINATION lib/${PROJECT_NAME}
  )
 
